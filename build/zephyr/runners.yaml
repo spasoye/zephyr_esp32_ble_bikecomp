@@ -1,0 +1,89 @@
+# Available runners configured by board.cmake.
+runners:
+- esp32
+- openocd
+- esp32
+- esp32
+- esp32
+- esp32
+- esp32
+
+# Default flash runner if --runner is not given.
+flash-runner: esp32
+
+# Default debug runner if --runner is not given.
+debug-runner: openocd
+
+# Common runner configuration values.
+config:
+  board_dir: /home/ivan/projects/zephyrOS/zephyr/boards/xtensa/esp32_devkitc_wroom
+  # Build outputs:
+  elf_file: zephyr.elf
+  bin_file: zephyr.bin
+  # Host tools:
+  gdb: /home/ivan/bin/zephyr-sdk-0.16.4/xtensa-espressif_esp32_zephyr-elf/bin/xtensa-espressif_esp32_zephyr-elf-gdb
+  openocd: /home/ivan/bin/zephyr-sdk-0.16.4/sysroots/x86_64-pokysdk-linux/usr/bin/openocd
+  openocd_search:
+    - /home/ivan/bin/zephyr-sdk-0.16.4/sysroots/x86_64-pokysdk-linux/usr/share/openocd/scripts
+
+# Runner specific arguments
+args:
+  esp32:
+    - --esp-idf-path=/home/ivan/projects/zephyrOS/modules/hal/espressif
+    - --esp-flash-bootloader=/home/ivan/projects/zephyrOS/esp32_ble_csc/build/esp-idf/build/bootloader/bootloader.bin
+    - --esp-flash-partition_table=/home/ivan/projects/zephyrOS/esp32_ble_csc/build/esp-idf/build/partitions_singleapp.bin
+    - --esp-partition-table-address=0x8000
+    - --esp-boot-address=0x1000
+    - --esp-app-address=0x10000
+  openocd:
+    - --cmd-load
+    - flash write_image erase
+    - --cmd-verify
+    - verify_image
+    - --no-init
+    - --no-halt
+    - --no-targets
+    - --no-load
+    - --gdb-init
+    - set remote hardware-watchpoint-limit 2
+    - --gdb-init
+    - flushregs
+    - --gdb-init
+    - mon reset halt
+    - --gdb-init
+    - thb main
+  esp32:
+    - --esp-idf-path=/home/ivan/projects/zephyrOS/modules/hal/espressif
+    - --esp-flash-bootloader=/home/ivan/projects/zephyrOS/esp32_ble_csc/build/esp-idf/build/bootloader/bootloader.bin
+    - --esp-flash-partition_table=/home/ivan/projects/zephyrOS/esp32_ble_csc/build/esp-idf/build/partitions_singleapp.bin
+    - --esp-partition-table-address=0x8000
+    - --esp-boot-address=0x1000
+    - --esp-app-address=0x10000
+  esp32:
+    - --esp-idf-path=/home/ivan/projects/zephyrOS/modules/hal/espressif
+    - --esp-flash-bootloader=/home/ivan/projects/zephyrOS/esp32_ble_csc/build/esp-idf/build/bootloader/bootloader.bin
+    - --esp-flash-partition_table=/home/ivan/projects/zephyrOS/esp32_ble_csc/build/esp-idf/build/partitions_singleapp.bin
+    - --esp-partition-table-address=0x8000
+    - --esp-boot-address=0x1000
+    - --esp-app-address=0x10000
+  esp32:
+    - --esp-idf-path=/home/ivan/projects/zephyrOS/modules/hal/espressif
+    - --esp-flash-bootloader=/home/ivan/projects/zephyrOS/esp32_ble_csc/build/esp-idf/build/bootloader/bootloader.bin
+    - --esp-flash-partition_table=/home/ivan/projects/zephyrOS/esp32_ble_csc/build/esp-idf/build/partitions_singleapp.bin
+    - --esp-partition-table-address=0x8000
+    - --esp-boot-address=0x1000
+    - --esp-app-address=0x10000
+  esp32:
+    - --esp-idf-path=/home/ivan/projects/zephyrOS/modules/hal/espressif
+    - --esp-flash-bootloader=/home/ivan/projects/zephyrOS/esp32_ble_csc/build/esp-idf/build/bootloader/bootloader.bin
+    - --esp-flash-partition_table=/home/ivan/projects/zephyrOS/esp32_ble_csc/build/esp-idf/build/partitions_singleapp.bin
+    - --esp-partition-table-address=0x8000
+    - --esp-boot-address=0x1000
+    - --esp-app-address=0x10000
+  esp32:
+    - --esp-idf-path=/home/ivan/projects/zephyrOS/modules/hal/espressif
+    - --esp-flash-bootloader=/home/ivan/projects/zephyrOS/esp32_ble_csc/build/esp-idf/build/bootloader/bootloader.bin
+    - --esp-flash-partition_table=/home/ivan/projects/zephyrOS/esp32_ble_csc/build/esp-idf/build/partitions_singleapp.bin
+    - --esp-partition-table-address=0x8000
+    - --esp-boot-address=0x1000
+    - --esp-app-address=0x10000

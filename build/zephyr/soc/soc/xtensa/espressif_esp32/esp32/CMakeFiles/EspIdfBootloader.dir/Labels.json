@@ -1,0 +1,43 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/home/ivan/projects/zephyrOS/esp32_ble_csc/build/zephyr/soc/soc/xtensa/espressif_esp32/esp32/CMakeFiles/EspIdfBootloader"
+		},
+		{
+			"file" : "/home/ivan/projects/zephyrOS/esp32_ble_csc/build/zephyr/soc/soc/xtensa/espressif_esp32/esp32/CMakeFiles/EspIdfBootloader.rule"
+		},
+		{
+			"file" : "/home/ivan/projects/zephyrOS/esp32_ble_csc/build/zephyr/soc/soc/xtensa/espressif_esp32/esp32/CMakeFiles/EspIdfBootloader-complete.rule"
+		},
+		{
+			"file" : "/home/ivan/projects/zephyrOS/esp32_ble_csc/build/esp-idf/src/EspIdfBootloader-stamp/EspIdfBootloader-build.rule"
+		},
+		{
+			"file" : "/home/ivan/projects/zephyrOS/esp32_ble_csc/build/esp-idf/src/EspIdfBootloader-stamp/EspIdfBootloader-configure.rule"
+		},
+		{
+			"file" : "/home/ivan/projects/zephyrOS/esp32_ble_csc/build/esp-idf/src/EspIdfBootloader-stamp/EspIdfBootloader-download.rule"
+		},
+		{
+			"file" : "/home/ivan/projects/zephyrOS/esp32_ble_csc/build/esp-idf/src/EspIdfBootloader-stamp/EspIdfBootloader-install.rule"
+		},
+		{
+			"file" : "/home/ivan/projects/zephyrOS/esp32_ble_csc/build/esp-idf/src/EspIdfBootloader-stamp/EspIdfBootloader-mkdir.rule"
+		},
+		{
+			"file" : "/home/ivan/projects/zephyrOS/esp32_ble_csc/build/esp-idf/src/EspIdfBootloader-stamp/EspIdfBootloader-patch.rule"
+		},
+		{
+			"file" : "/home/ivan/projects/zephyrOS/esp32_ble_csc/build/esp-idf/src/EspIdfBootloader-stamp/EspIdfBootloader-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"EspIdfBootloader"
+		],
+		"name" : "EspIdfBootloader"
+	}
+}

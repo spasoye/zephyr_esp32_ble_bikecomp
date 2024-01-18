@@ -1,0 +1,13 @@
+# Target labels
+ EspIdfBootloader
+# Source files and their labels
+/home/ivan/projects/zephyrOS/esp32_ble_csc/build/zephyr/soc/soc/xtensa/espressif_esp32/esp32/CMakeFiles/EspIdfBootloader
+/home/ivan/projects/zephyrOS/esp32_ble_csc/build/zephyr/soc/soc/xtensa/espressif_esp32/esp32/CMakeFiles/EspIdfBootloader.rule
+/home/ivan/projects/zephyrOS/esp32_ble_csc/build/zephyr/soc/soc/xtensa/espressif_esp32/esp32/CMakeFiles/EspIdfBootloader-complete.rule
+/home/ivan/projects/zephyrOS/esp32_ble_csc/build/esp-idf/src/EspIdfBootloader-stamp/EspIdfBootloader-build.rule
+/home/ivan/projects/zephyrOS/esp32_ble_csc/build/esp-idf/src/EspIdfBootloader-stamp/EspIdfBootloader-configure.rule
+/home/ivan/projects/zephyrOS/esp32_ble_csc/build/esp-idf/src/EspIdfBootloader-stamp/EspIdfBootloader-download.rule
+/home/ivan/projects/zephyrOS/esp32_ble_csc/build/esp-idf/src/EspIdfBootloader-stamp/EspIdfBootloader-install.rule
+/home/ivan/projects/zephyrOS/esp32_ble_csc/build/esp-idf/src/EspIdfBootloader-stamp/EspIdfBootloader-mkdir.rule
+/home/ivan/projects/zephyrOS/esp32_ble_csc/build/esp-idf/src/EspIdfBootloader-stamp/EspIdfBootloader-patch.rule
+/home/ivan/projects/zephyrOS/esp32_ble_csc/build/esp-idf/src/EspIdfBootloader-stamp/EspIdfBootloader-update.rule

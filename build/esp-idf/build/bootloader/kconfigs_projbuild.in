@@ -1,0 +1,4 @@
+source "/home/ivan/projects/zephyrOS/modules/hal/espressif/components/bootloader/Kconfig.projbuild"
+source "/home/ivan/projects/zephyrOS/modules/hal/espressif/components/esp_rom/Kconfig.projbuild"
+source "/home/ivan/projects/zephyrOS/modules/hal/espressif/components/esptool_py/Kconfig.projbuild"
+source "/home/ivan/projects/zephyrOS/modules/hal/espressif/components/partition_table/Kconfig.projbuild"

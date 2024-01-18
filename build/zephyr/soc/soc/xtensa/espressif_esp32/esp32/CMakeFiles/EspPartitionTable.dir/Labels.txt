@@ -1,0 +1,13 @@
+# Target labels
+ EspPartitionTable
+# Source files and their labels
+/home/ivan/projects/zephyrOS/esp32_ble_csc/build/zephyr/soc/soc/xtensa/espressif_esp32/esp32/CMakeFiles/EspPartitionTable
+/home/ivan/projects/zephyrOS/esp32_ble_csc/build/zephyr/soc/soc/xtensa/espressif_esp32/esp32/CMakeFiles/EspPartitionTable.rule
+/home/ivan/projects/zephyrOS/esp32_ble_csc/build/zephyr/soc/soc/xtensa/espressif_esp32/esp32/CMakeFiles/EspPartitionTable-complete.rule
+/home/ivan/projects/zephyrOS/esp32_ble_csc/build/zephyr/soc/soc/xtensa/espressif_esp32/esp32/EspPartitionTable-prefix/src/EspPartitionTable-stamp/EspPartitionTable-build.rule
+/home/ivan/projects/zephyrOS/esp32_ble_csc/build/zephyr/soc/soc/xtensa/espressif_esp32/esp32/EspPartitionTable-prefix/src/EspPartitionTable-stamp/EspPartitionTable-configure.rule
+/home/ivan/projects/zephyrOS/esp32_ble_csc/build/zephyr/soc/soc/xtensa/espressif_esp32/esp32/EspPartitionTable-prefix/src/EspPartitionTable-stamp/EspPartitionTable-download.rule
+/home/ivan/projects/zephyrOS/esp32_ble_csc/build/zephyr/soc/soc/xtensa/espressif_esp32/esp32/EspPartitionTable-prefix/src/EspPartitionTable-stamp/EspPartitionTable-install.rule
+/home/ivan/projects/zephyrOS/esp32_ble_csc/build/zephyr/soc/soc/xtensa/espressif_esp32/esp32/EspPartitionTable-prefix/src/EspPartitionTable-stamp/EspPartitionTable-mkdir.rule
+/home/ivan/projects/zephyrOS/esp32_ble_csc/build/zephyr/soc/soc/xtensa/espressif_esp32/esp32/EspPartitionTable-prefix/src/EspPartitionTable-stamp/EspPartitionTable-patch.rule
+/home/ivan/projects/zephyrOS/esp32_ble_csc/build/zephyr/soc/soc/xtensa/espressif_esp32/esp32/EspPartitionTable-prefix/src/EspPartitionTable-stamp/EspPartitionTable-update.rule
