@@ -1,7 +1,7 @@
 / {
     aliases {
         led0 = &led_blue;
-        sw = &sw0;
+        magsw = &magsw;
     };
 
     leds {
@@ -13,8 +13,8 @@
 
     buttons {
         compatible = "gpio-keys";
-        sw0: sw_0 {
-            gpios = <&gpio0 4 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+        magsw: magsw0 {
+            gpios = <&gpio0 13 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
             label = "Button 0";
         };
     };

@@ -1,107 +1,92 @@
-/*
- * Copyright (c) 2016 Open-RnD Sp. z o.o.
- * Copyright (c) 2020 Nordic Semiconductor ASA
- *
- * SPDX-License-Identifier: Apache-2.0
- */
-
 #include <zephyr/kernel.h>
 #include <zephyr/device.h>
 #include <zephyr/drivers/gpio.h>
 #include <zephyr/sys/util.h>
 #include <zephyr/sys/printk.h>
 #include <inttypes.h>
-#include <zephyr/logging/log.h>
 
-LOG_MODULE_REGISTER(main);
+#define SLEEP_TIME_MS	1
 
-#define SLEEP_TIME_MS 500
-#define SLEEP_FAST_TIME_MS 250
+/*
+ * Get button configuration from the devicetree sw0 alias. This is mandatory.
+ */
+#define SW0_NODE	DT_ALIAS(magsw)
+#if !DT_NODE_HAS_STATUS(SW0_NODE, okay)
+#error "Unsupported board: sw0 devicetree alias is not defined"
+#endif
+static const struct gpio_dt_spec button = GPIO_DT_SPEC_GET_OR(SW0_NODE, gpios,
+							      {0});
+static struct gpio_callback button_cb_data;
 
-#define LED0_NODE DT_ALIAS(led0)
-#define SW_NODE DT_ALIAS(sw0)
-
-#define DEBOUNCE_TIMEOUT_MS 50
-
-static const struct gpio_dt_spec led = GPIO_DT_SPEC_GET(LED0_NODE, gpios);
-static const struct gpio_dt_spec sw = GPIO_DT_SPEC_GET(SW_NODE, gpios);
-
-bool fast = false;
-struct gpio_callback sw_cb_data;
-
-int period() 
-{
-	if (fast){
-		return SLEEP_FAST_TIME_MS;
-	} else {
-		return SLEEP_TIME_MS;
-	}
-}
-
-/* Work handler function */
-void button_action_work_handler(struct k_work *work) {
-    fast = !fast;
-    LOG_INF("Pressing the button at %" PRIu32 "; period is %dms", k_cycle_get_32(), period());
-}
-
-/* Register the work handler */
-K_WORK_DEFINE(button_action_work, button_action_work_handler);
+/*
+ * The led0 devicetree alias is optional. If present, we'll use it
+ * to turn on the LED whenever the button is pressed.
+ */
+static struct gpio_dt_spec led = GPIO_DT_SPEC_GET_OR(DT_ALIAS(led0), gpios,
+						     {0});
 
 void button_pressed(const struct device *dev, struct gpio_callback *cb,
 		    uint32_t pins)
 {
-	k_work_submit(&button_action_work);
+	printk("Button pressed at %" PRIu32 "\n", k_cycle_get_32());
 }
 
-void main(void)
+int main(void)
 {
 	int ret;
 
-	LOG_INF("Starting demo");
-
-	// led
-
-	if (!gpio_is_ready_dt(&led)) {
-		LOG_ERR("LED not running");
-		return;
+	if (!gpio_is_ready_dt(&button)) {
+		printk("Error: button device %s is not ready\n",
+		       button.port->name);
+		return 0;
 	}
 
-	ret = gpio_pin_configure_dt(&led, GPIO_OUTPUT_ACTIVE);
-	if (ret < 0) {
-		LOG_ERR("Bad LED Configuration");
-		return;
+	ret = gpio_pin_configure_dt(&button, GPIO_INPUT);
+	if (ret != 0) {
+		printk("Error %d: failed to configure %s pin %d\n",
+		       ret, button.port->name, button.pin);
+		return 0;
 	}
 
-	// switch
-
-	if (!gpio_is_ready_dt(&sw)) {
-		LOG_ERR("SW not running");
-		return;
+	ret = gpio_pin_interrupt_configure_dt(&button,
+					      GPIO_INT_EDGE_TO_ACTIVE);
+	if (ret != 0) {
+		printk("Error %d: failed to configure interrupt on %s pin %d\n",
+			ret, button.port->name, button.pin);
+		return 0;
 	}
 
-	ret = gpio_pin_configure_dt(&sw, GPIO_INPUT);
-	if (ret < 0) {
-		LOG_ERR("Bad SW Configuration");
-		return;
+	gpio_init_callback(&button_cb_data, button_pressed, BIT(button.pin));
+	gpio_add_callback(button.port, &button_cb_data);
+	printk("Set up button at %s pin %d\n", button.port->name, button.pin);
+
+	if (led.port && !gpio_is_ready_dt(&led)) {
+		printk("Error %d: LED device %s is not ready; ignoring it\n",
+		       ret, led.port->name);
+		led.port = NULL;
 	}
-
-	// interrupts
-
-	ret = gpio_pin_interrupt_configure_dt(&sw, GPIO_INT_EDGE_TO_ACTIVE);
-	if (ret < 0) {
-		LOG_ERR("Bad INTR configuration");
-		return;
-	}
-
-	// setup the button press callback
-	gpio_init_callback(&sw_cb_data, button_pressed, BIT(sw.pin));
-	gpio_add_callback(sw.port, &sw_cb_data);
-
-	while (1) {
-		ret = gpio_pin_toggle_dt(&led);
-		if (ret < 0) {
-			return;
+	if (led.port) {
+		ret = gpio_pin_configure_dt(&led, GPIO_OUTPUT);
+		if (ret != 0) {
+			printk("Error %d: failed to configure LED device %s pin %d\n",
+			       ret, led.port->name, led.pin);
+			led.port = NULL;
+		} else {
+			printk("Set up LED at %s pin %d\n", led.port->name, led.pin);
 		}
-		k_msleep(period());
 	}
+
+	printk("Press the button\n");
+	if (led.port) {
+		while (1) {
+			/* If we have an LED, match its state to the button's. */
+			int val = gpio_pin_get_dt(&button);
+
+			if (val >= 0) {
+				gpio_pin_set_dt(&led, val);
+			}
+			k_msleep(SLEEP_TIME_MS);
+		}
+	}
+	return 0;
 }
