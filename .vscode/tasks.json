@@ -1,0 +1,104 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "west build",
+        "type": "shell",
+        "command": "west",
+        "args": ["build", "-b", "esp32_devkitc_wroom"],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "presentation": {
+          "reveal": "always",
+          "panel": "new",
+          "close": true
+        },
+        "options": {
+          "cwd": "${workspaceFolder}"
+        },
+        "problemMatcher": ["$gcc"],
+        
+      },
+      {
+        "label": "west flash",
+        "type": "shell",
+        "command": "west",
+        "args": ["flash"],
+        "group": {
+          "kind": "build",
+          "isDefault": true,
+          "close": true
+        },
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": false,
+          "panel": "shared",
+          "showReuseMessage": true,
+          "clear": false,
+          "close": true
+        },
+        "options": {
+          "cwd": "${workspaceFolder}"
+        },
+        "problemMatcher": [""]
+      },
+      {
+        "label": "StartOpenOCD",
+        "type": "process",
+        "command": "openocd",
+        "isBackground": true,
+        "args": [
+          "-f", "interface/jlink.cfg",
+          "-f", "board/esp-wroom-32.cfg"
+        ],
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": false,
+          "panel": "shared",
+          "showReuseMessage": true,
+          "clear": false,
+          "close": true
+        },
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "options": {
+          "cwd": "${workspaceFolder}"
+        },
+        "problemMatcher": ["$gcc"]
+      },
+      {
+        "label": "StopOpenOCD",
+        "type": "process",
+        "command": "killall",
+        "isBackground": true,
+        "args": [
+          "openocd"
+        ],
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": false,
+          "panel": "shared",
+          "showReuseMessage": true,
+          "clear": false,
+          "close": true
+        },
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "options": {
+          "cwd": "${workspaceFolder}"
+        },
+        "problemMatcher": [""],
+        "terminate": true
+      }
+    ]
+  }
+  

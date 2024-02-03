@@ -27,5 +27,20 @@
         "openthread.h": "c",
         "printk.h": "c",
         "device.h": "c"
-    }
+    },
+
+    "workspaceFolder": {
+        "path": ".",
+        "zephyrproject": "%HOMEPATH%/zephyrproject",
+        "AppUnderDev": "${workspaceRoot}"
+    },
+    
+    "bsp": {
+        "board": "esp32_devkitc_wroom",
+    },
+    
+    "app": {
+        "name": "${config:workspaceFolder.AppUnderDev}",
+        "build_dir": "${workspaceFolder.AppUnderDev}\\build",
+    },
 }

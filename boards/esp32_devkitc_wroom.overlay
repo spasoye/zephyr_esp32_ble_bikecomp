@@ -14,7 +14,7 @@
     buttons {
         compatible = "gpio-keys";
         magsw: magsw0 {
-            gpios = <&gpio0 13 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+            gpios = <&gpio0 4 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;
             label = "Button 0";
         };
     };
