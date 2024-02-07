@@ -12,13 +12,13 @@
         "autorun": [
             "target extended-remote :3333",
             "set remote hardware-watchpoint-limit 2",
-            "mon reset halt",
             "flushregs",
+            "mon reset halt",
             "thb main",
         ],
 
         "preLaunchTask": "StartOpenOCD",
-        "postDebugTask": "StopOpenOCD"
+        // "postDebugTask": "StopOpenOCD"
       }
     ]
   }

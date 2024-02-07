@@ -13,7 +13,25 @@
         "presentation": {
           "reveal": "always",
           "panel": "new",
-          "close": true
+        },
+        "options": {
+          "cwd": "${workspaceFolder}"
+        },
+        "problemMatcher": ["$gcc"],
+        
+      },
+      {
+        "label": "west build --pristine",
+        "type": "shell",
+        "command": "west",
+        "args": ["build", "-b", "esp32_devkitc_wroom", "-p"],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "presentation": {
+          "reveal": "always",
+          "panel": "new",
         },
         "options": {
           "cwd": "${workspaceFolder}"
@@ -29,7 +47,6 @@
         "group": {
           "kind": "build",
           "isDefault": true,
-          "close": true
         },
         "presentation": {
           "echo": true,
@@ -47,12 +64,12 @@
       },
       {
         "label": "StartOpenOCD",
-        "type": "process",
+        "type": "shell",
         "command": "openocd",
         "isBackground": true,
         "args": [
-          "-f", "interface/jlink.cfg",
-          "-f", "board/esp-wroom-32.cfg"
+          "-f", "/home/ivan/projects/zephyrOS/zephyr/boards/xtensa/esp32_devkitc_wroom/support/openocd.cfg" ,
+          "-c", "set ESP32_RTOS none"
         ],
         "presentation": {
           "echo": true,
