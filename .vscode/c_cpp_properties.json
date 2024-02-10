@@ -4,6 +4,7 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
+                "${workspaceFolder}/inc",
                 "${workspaceFolder}/../zephyr/include/*"
             ],
             "defines": [],

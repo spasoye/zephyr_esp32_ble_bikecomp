@@ -26,7 +26,13 @@
         "log.h": "c",
         "openthread.h": "c",
         "printk.h": "c",
-        "device.h": "c"
+        "device.h": "c",
+        "mag_sens.h": "c",
+        "inttypes.h": "c",
+        "*.tcc": "cpp",
+        "zephyr.h": "c",
+        "util.h": "c",
+        "typeinfo": "cpp"
     },
 
     "workspaceFolder": {
