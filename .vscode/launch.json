@@ -11,14 +11,32 @@
   
         "autorun": [
             "target extended-remote :3333",
-            "set remote hardware-watchpoint-limit 2",
-            "flushregs",
+            "set remote hardware-watchpoint-limit 4",
+            "maintenance flush register-cache",
+            "delete breakpoints",
             "mon reset halt",
-            "thb main",
+            "thb main()",
         ],
 
         "preLaunchTask": "StartOpenOCD",
-        // "postDebugTask": "StopOpenOCD"
+        "postDebugTask": "StopOpenOCD"
+      },
+      {
+        "type": "gdb",
+        "request": "launch",
+        "name": "Attach OCD debug",
+        "cwd": "${workspaceFolder}",
+        "target": "build/zephyr/zephyr.elf",
+        "gdbpath": "/home/ivan/bin/zephyr-sdk-0.16.4/xtensa-espressif_esp32_zephyr-elf/bin/xtensa-espressif_esp32_zephyr-elf-gdb",
+  
+        "autorun": [
+            "target extended-remote :3333",
+            "set remote hardware-watchpoint-limit 4",
+            "maintenance flush register-cache",
+            "delete breakpoints",
+            "mon reset halt",
+            "thb main()",
+        ],
       }
     ]
   }

@@ -8,8 +8,10 @@
 * COPYRIGHT NOTICE:
 */
 #include "../inc/mag_sens.h"
+#include <zephyr/kernel.h>
 
 /* ------> MACROS <------ */
+#define DEBOUNCE_TIMEOUT_MS 50
 
 /* ------> DATA TYPES <------ */
 
@@ -38,17 +40,10 @@ bool mag_sense::readSwitchState()
 
 mag_sense::~mag_sense(){
     // Destructor
+    return;
 }
 
 /* ------> PRIVATE FUNCTIONS <------ */
-void mag_sense::switch_int_hndl(const struct device *port,
-					struct gpio_callback *cb,
-					gpio_port_pins_t pins)
-{
-    // gpio_pin_interrupt_configure_dt(&button, GPIO_INT_DISABLE);
-	printk("Button pressed at %" PRIu32 "\n", k_cycle_get_32());
-}
-
 void mag_sense::cleanup() {
     // Perform any cleanup or resource release
     printk("Cleaning up magnetic sensor\n");
@@ -59,31 +54,38 @@ bool mag_sense::init() {
     int ret;
 
     if (!gpio_is_ready_dt(mag_sw)) {
-		printk("Error: button device %s is not ready\n",
-		       mag_sw->port->name);
-		return 0;
-	}
+        printk("Error: button device %s is not ready\n",
+               mag_sw->port->name);
+        return false;
+    }
 
-	ret = gpio_pin_configure_dt(mag_sw, GPIO_INPUT);
-	if (ret != 0) {
-		printk("Error %d: failed to configure %s pin %d\n",
-		       ret, mag_sw->port->name, mag_sw->pin);
-		return 0;
-	}
+    ret = gpio_pin_configure_dt(mag_sw, GPIO_INPUT);
+    if (ret != 0) {
+        printk("Error %d: failed to configure %s pin %d\n",
+               ret, mag_sw->port->name, mag_sw->pin);
+        return false;
+    }
 
-	ret = gpio_pin_interrupt_configure_dt(mag_sw,
-					      GPIO_INT_EDGE_TO_INACTIVE);
-	if (ret != 0) {
-		printk("Error %d: failed to configure interrupts on %s pin %d\n",
-			ret, mag_sw->port->name, mag_sw->pin);
-		return 0;
-	}
+    ret = gpio_pin_interrupt_configure_dt(mag_sw,
+                                          GPIO_INT_EDGE_TO_INACTIVE);
+    if (ret != 0) {
+        printk("Error %d: failed to configure interrupts on %s pin %d\n",
+            ret, mag_sw->port->name, mag_sw->pin);
+        return false;
+    }
 
-	gpio_init_callback(&switch_cb_data, switch_int_hndl, BIT(mag_sw->pin));
-	gpio_add_callback(mag_sw->port, &switch_cb_data);
+    gpio_init_callback(&switch_cb_data, switch_int_hndl, BIT(mag_sw->pin));
+    gpio_add_callback(mag_sw->port, &switch_cb_data);
 
-    return true;
     // Call the init function during object construction
+    return true;
 }
 
 /* ------> INTERRUPT HANDLERS <------ */
+void mag_sense::switch_int_hndl(const struct device *port,
+					struct gpio_callback *cb,
+					gpio_port_pins_t pins)
+{
+    gpio_pin_interrupt_configure_dt(mag_sw->pin, GPIO_INT_DISABLE);
+    printk("Button pressed at %" PRIu32 "\n", k_cycle_get_32());
+}

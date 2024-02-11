@@ -7,14 +7,14 @@
     leds {
         compatible = "gpio-leds";
         led_blue: led_0 {
-            gpios = <&gpio0 2 GPIO_ACTIVE_LOW>;
+            gpios = <&gpio0 2 GPIO_ACTIVE_HIGH>;
         };
     };
 
     buttons {
         compatible = "gpio-keys";
         magsw: magsw0 {
-            gpios = <&gpio0 4 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;
+            gpios = <&gpio0 4 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
             label = "Button 0";
         };
     };

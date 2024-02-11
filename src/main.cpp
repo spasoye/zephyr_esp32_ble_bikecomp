@@ -31,15 +31,32 @@ void button_pressed(const struct device *dev, struct gpio_callback *cb,
 
 int main(void)
 {
-	mag_sense speed_meter = mag_sense::mag_sense;
+	int ret;
+	// Magnetic switch testing
+	mag_sense a(&button);
+
+	if (led.port && !gpio_is_ready_dt(&led)) {
+		printk("Error %d: LED device %s is not ready; ignoring it\n",
+		       ret, led.port->name);
+		led.port = NULL;
+	}
+	if (led.port) {
+		ret = gpio_pin_configure_dt(&led, GPIO_OUTPUT);
+		if (ret != 0) {
+			printk("Error %d: failed to configure LED device %s pin %d\n",
+			       ret, led.port->name, led.pin);
+			led.port = NULL;
+		} else {
+			printk("Set up LED at %s pin %d\n", led.port->name, led.pin);
+		}
+	}
 
 	printk("TEST Press the button\n");
 
 	if (led.port) {
 		while (1) {
 			/* If we have an LED, match its state to the button's. */
-			int val = gpio_pin_get_dt(&button);
-
+			int val = a.readSwitchState();
 			if (val >= 0) {
 				gpio_pin_set_dt(&led, val);
 			}

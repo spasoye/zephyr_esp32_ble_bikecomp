@@ -54,16 +54,16 @@ public:
     // Perform any cleanup or resource release
     void cleanup();
 
-private:
-    const struct gpio_dt_spec *mag_sw;
-    static struct gpio_callback switch_cb_data;
-
-    // Initialize the magnetic sensor
-    bool init();
-    void switch_int_hndl(const struct device *port,
+    static void switch_int_hndl(const struct device *port,
 					struct gpio_callback *cb,
 					gpio_port_pins_t pins);
 
+private:
+    const struct gpio_dt_spec *mag_sw;
+    struct gpio_callback switch_cb_data;
+
+    // Initialize the magnetic sensor
+    bool init();
 };
 
 
