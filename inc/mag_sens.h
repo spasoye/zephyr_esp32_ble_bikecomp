@@ -54,16 +54,30 @@ public:
     // Perform any cleanup or resource release
     void cleanup();
 
-    static void switch_int_hndl(const struct device *port,
-					struct gpio_callback *cb,
-					gpio_port_pins_t pins);
-
 private:
     const struct gpio_dt_spec *mag_sw;
     struct gpio_callback switch_cb_data;
 
     // Initialize the magnetic sensor
     bool init();
+
+    void enableSwitchInterrupt();
+    static void enableSwitchInterruptWrapper(void* instance);
+    void disableSwitchInterrupt();
+
+    // Private callback function for GPIO interrupt
+    void switch_int_hndl(const struct device *port,
+                         struct gpio_callback *cb,
+                         gpio_port_pins_t pins);
+
+    // Static wrapper function for interrupt handler
+    static void switch_int_hndl_wrapper(const struct device *port,
+                                        struct gpio_callback *cb,
+                                        gpio_port_pins_t pins);
+    
+    struct k_work_delayable switch_debounce_work;
+    void debounce_handler(struct k_work *work);
+    static void debounce_handler_wrapper(struct k_work *work);
 };
 
 
@@ -73,6 +87,3 @@ private:
 #endif
 
 #endif // __MAG_SENS_H__
-
-
-

@@ -9,6 +9,7 @@
 */
 #include "../inc/mag_sens.h"
 #include <zephyr/kernel.h>
+#include <zephyr/logging/log.h>
 
 /* ------> MACROS <------ */
 #define DEBOUNCE_TIMEOUT_MS 50
@@ -74,18 +75,67 @@ bool mag_sense::init() {
         return false;
     }
 
-    gpio_init_callback(&switch_cb_data, switch_int_hndl, BIT(mag_sw->pin));
+    gpio_init_callback(&switch_cb_data, switch_int_hndl_wrapper, BIT(mag_sw->pin));
     gpio_add_callback(mag_sw->port, &switch_cb_data);
+
+    k_work_init_delayable(&switch_debounce_work, debounce_handler_wrapper);
 
     // Call the init function during object construction
     return true;
 }
 
+void mag_sense::enableSwitchInterrupt() {
+    gpio_pin_interrupt_configure_dt(mag_sw,
+                                    GPIO_INT_EDGE_TO_INACTIVE);
+}
+
+void mag_sense::enableSwitchInterruptWrapper(void* instance) {
+    // Call the non-static member function using the provided instance
+    mag_sense* magInstance = static_cast<mag_sense*>(instance);
+    magInstance->enableSwitchInterrupt();
+}
+
+void mag_sense::disableSwitchInterrupt() {
+    gpio_pin_interrupt_configure_dt(mag_sw,
+                                    GPIO_INT_DISABLE);
+}
+
 /* ------> INTERRUPT HANDLERS <------ */
+/* Work handler function */
+void mag_sense::debounce_handler(struct k_work *work) {
+    printk("Debounce");
+
+    enableSwitchInterruptWrapper(this);
+}
+
+void mag_sense::debounce_handler_wrapper(struct k_work *work) {
+    // Get the instance from the work item
+    mag_sense* instance = CONTAINER_OF(work, mag_sense, switch_debounce_work);
+
+    // Call the non-static member function
+    instance->debounce_handler(work);
+}
+
 void mag_sense::switch_int_hndl(const struct device *port,
 					struct gpio_callback *cb,
 					gpio_port_pins_t pins)
 {
-    gpio_pin_interrupt_configure_dt(mag_sw->pin, GPIO_INT_DISABLE);
+    // Disable interrupts
+    disableSwitchInterrupt();
+
+    // Do something usefull
     printk("Button pressed at %" PRIu32 "\n", k_cycle_get_32());
+
+    k_work_schedule(&switch_debounce_work, K_MSEC(DEBOUNCE_TIMEOUT_MS));
+}
+
+void mag_sense::switch_int_hndl_wrapper(const struct device *port,
+                                         struct gpio_callback *cb,
+                                         gpio_port_pins_t pins)
+{
+    // Get the instance from the callback data
+    mag_sense *instance = CONTAINER_OF(cb, mag_sense, switch_cb_data);
+    
+    // Call the non-static member function
+    instance->switch_int_hndl(port, cb, pins);
 }
