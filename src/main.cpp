@@ -6,7 +6,7 @@
 #include <inttypes.h>
 #include "../inc/mag_sens.h"
 
-#define SLEEP_TIME_MS	1
+#define SLEEP_TIME_MS	500
 
 /*
  * Get button configuration from the devicetree sw0 alias. This is mandatory.
@@ -32,6 +32,7 @@ void button_pressed(const struct device *dev, struct gpio_callback *cb,
 int main(void)
 {
 	int ret;
+	
 	// Magnetic switch testing
 	mag_sense a(&button);
 
@@ -55,11 +56,11 @@ int main(void)
 
 	if (led.port) {
 		while (1) {
-			/* If we have an LED, match its state to the button's. */
-			int val = a.readSwitchState();
-			if (val >= 0) {
-				gpio_pin_set_dt(&led, val);
-			}
+			// /* If we have an LED, match its state to the button's. */
+			// int val = a.readSwitchState();
+			static bool val=true;
+			val = !val;
+			gpio_pin_set_dt(&led, val);
 			k_msleep(SLEEP_TIME_MS);
 		}
 	}

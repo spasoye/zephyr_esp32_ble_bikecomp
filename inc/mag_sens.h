@@ -62,7 +62,6 @@ private:
     bool init();
 
     void enableSwitchInterrupt();
-    static void enableSwitchInterruptWrapper(void* instance);
     void disableSwitchInterrupt();
 
     // Private callback function for GPIO interrupt

@@ -10,9 +10,10 @@
 #include "../inc/mag_sens.h"
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
+#include <zephyr/irq.h>
 
 /* ------> MACROS <------ */
-#define DEBOUNCE_TIMEOUT_MS 50
+#define DEBOUNCE_TIMEOUT_MS 200
 
 /* ------> DATA TYPES <------ */
 
@@ -80,22 +81,20 @@ bool mag_sense::init() {
 
     k_work_init_delayable(&switch_debounce_work, debounce_handler_wrapper);
 
+    // k_work_schedule(&switch_debounce_work, K_MSEC(DEBOUNCE_TIMEOUT_MS));
     // Call the init function during object construction
     return true;
 }
 
 void mag_sense::enableSwitchInterrupt() {
+    printk("Mag switch int enable\n");
     gpio_pin_interrupt_configure_dt(mag_sw,
                                     GPIO_INT_EDGE_TO_INACTIVE);
 }
 
-void mag_sense::enableSwitchInterruptWrapper(void* instance) {
-    // Call the non-static member function using the provided instance
-    mag_sense* magInstance = static_cast<mag_sense*>(instance);
-    magInstance->enableSwitchInterrupt();
-}
 
 void mag_sense::disableSwitchInterrupt() {
+    printk("Mag switch int disable\n");
     gpio_pin_interrupt_configure_dt(mag_sw,
                                     GPIO_INT_DISABLE);
 }
@@ -105,7 +104,7 @@ void mag_sense::disableSwitchInterrupt() {
 void mag_sense::debounce_handler(struct k_work *work) {
     printk("Debounce");
 
-    enableSwitchInterruptWrapper(this);
+    enableSwitchInterrupt();
 }
 
 void mag_sense::debounce_handler_wrapper(struct k_work *work) {
