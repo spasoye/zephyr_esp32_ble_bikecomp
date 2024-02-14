@@ -34,7 +34,7 @@ int main(void)
 	int ret;
 	
 	// Magnetic switch testing
-	mag_sense a(&button);
+	mag_sens a(&button);
 
 	if (led.port && !gpio_is_ready_dt(&led)) {
 		printk("Error %d: LED device %s is not ready; ignoring it\n",
@@ -56,8 +56,6 @@ int main(void)
 
 	if (led.port) {
 		while (1) {
-			// /* If we have an LED, match its state to the button's. */
-			// int val = a.readSwitchState();
 			static bool val=true;
 			val = !val;
 			gpio_pin_set_dt(&led, val);

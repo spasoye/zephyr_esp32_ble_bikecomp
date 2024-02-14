@@ -1,13 +1,4 @@
 /**
-* @file MagSense.h
-*
-* @brief Header file for the MagSense class.
-*
-* @par
-*
-* COPYRIGHT NOTICE:
-*/
-/**
 * @file mag_sens.h
 
 * @brief Description in .c
@@ -40,13 +31,13 @@ extern "C" {
 /* ------> DATA TYPES <------ */
 
 /* ------> PUBLIC FUNCTION PROTOTYPES <------ */
-class mag_sense {
+class mag_sens {
 public:
     // Constructor
-    mag_sense(const struct gpio_dt_spec *input);
+    mag_sens(const struct gpio_dt_spec *input);
 
     // Destructor
-    ~mag_sense();
+    ~mag_sens();
 
     // Read the state of the switch (true for ON, false for OFF)
     bool readSwitchState();
@@ -55,6 +46,7 @@ public:
     void cleanup();
 
 private:
+    uint32_t last_rev_time;
     const struct gpio_dt_spec *mag_sw;
     struct gpio_callback switch_cb_data;
 

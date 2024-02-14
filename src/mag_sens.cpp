@@ -1,7 +1,7 @@
 /**
-* @file MagSense.cpp
+* @file mag_sens.cpp
 *
-* @brief Implementation file for the MagSense class.
+* @brief Implementation file for the mag_sens class.
 *
 * @par
 *
@@ -24,7 +24,7 @@
 /* ------> GLOBAL DATA <------ */
 
 /* ------> PUBLIC FUNCTIONS <------ */
-mag_sense::mag_sense(const struct gpio_dt_spec *input) {
+mag_sens::mag_sens(const struct gpio_dt_spec *input) {
     mag_sw = input;
     
     if (!init()) {
@@ -33,26 +33,26 @@ mag_sense::mag_sense(const struct gpio_dt_spec *input) {
     }
 }
 
-bool mag_sense::readSwitchState()
+bool mag_sens::readSwitchState()
 {
     bool state;
     state = gpio_pin_get_dt(mag_sw);
     return state;
 }
 
-mag_sense::~mag_sense(){
+mag_sens::~mag_sens(){
     // Destructor
     return;
 }
 
 /* ------> PRIVATE FUNCTIONS <------ */
-void mag_sense::cleanup() {
+void mag_sens::cleanup() {
     // Perform any cleanup or resource release
     printk("Cleaning up magnetic sensor\n");
     // Add cleanup logic if needed
 }
 
-bool mag_sense::init() {
+bool mag_sens::init() {
     int ret;
 
     if (!gpio_is_ready_dt(mag_sw)) {
@@ -81,19 +81,17 @@ bool mag_sense::init() {
 
     k_work_init_delayable(&switch_debounce_work, debounce_handler_wrapper);
 
-    // k_work_schedule(&switch_debounce_work, K_MSEC(DEBOUNCE_TIMEOUT_MS));
-    // Call the init function during object construction
     return true;
 }
 
-void mag_sense::enableSwitchInterrupt() {
+void mag_sens::enableSwitchInterrupt() {
     printk("Mag switch int enable\n");
     gpio_pin_interrupt_configure_dt(mag_sw,
                                     GPIO_INT_EDGE_TO_INACTIVE);
 }
 
 
-void mag_sense::disableSwitchInterrupt() {
+void mag_sens::disableSwitchInterrupt() {
     printk("Mag switch int disable\n");
     gpio_pin_interrupt_configure_dt(mag_sw,
                                     GPIO_INT_DISABLE);
@@ -101,21 +99,21 @@ void mag_sense::disableSwitchInterrupt() {
 
 /* ------> INTERRUPT HANDLERS <------ */
 /* Work handler function */
-void mag_sense::debounce_handler(struct k_work *work) {
+void mag_sens::debounce_handler(struct k_work *work) {
     printk("Debounce");
 
     enableSwitchInterrupt();
 }
 
-void mag_sense::debounce_handler_wrapper(struct k_work *work) {
+void mag_sens::debounce_handler_wrapper(struct k_work *work) {
     // Get the instance from the work item
-    mag_sense* instance = CONTAINER_OF(work, mag_sense, switch_debounce_work);
+    mag_sens* instance = CONTAINER_OF(work, mag_sens, switch_debounce_work);
 
     // Call the non-static member function
     instance->debounce_handler(work);
 }
 
-void mag_sense::switch_int_hndl(const struct device *port,
+void mag_sens::switch_int_hndl(const struct device *port,
 					struct gpio_callback *cb,
 					gpio_port_pins_t pins)
 {
@@ -128,12 +126,12 @@ void mag_sense::switch_int_hndl(const struct device *port,
     k_work_schedule(&switch_debounce_work, K_MSEC(DEBOUNCE_TIMEOUT_MS));
 }
 
-void mag_sense::switch_int_hndl_wrapper(const struct device *port,
+void mag_sens::switch_int_hndl_wrapper(const struct device *port,
                                          struct gpio_callback *cb,
                                          gpio_port_pins_t pins)
 {
     // Get the instance from the callback data
-    mag_sense *instance = CONTAINER_OF(cb, mag_sense, switch_cb_data);
+    mag_sens *instance = CONTAINER_OF(cb, mag_sens, switch_cb_data);
     
     // Call the non-static member function
     instance->switch_int_hndl(port, cb, pins);
