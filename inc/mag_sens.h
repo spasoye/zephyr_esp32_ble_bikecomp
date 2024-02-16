@@ -23,10 +23,6 @@ extern "C" {
 #include <inttypes.h>
 
 /* ------> MACROS <------ */
-#define SW0_NODE	DT_ALIAS(magsw)
-#if !DT_NODE_HAS_STATUS(SW0_NODE, okay)
-#error "Unsupported board: sw0 devicetree alias is not defined"
-#endif
 
 /* ------> DATA TYPES <------ */
 
