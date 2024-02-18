@@ -8,6 +8,11 @@
 
 #define SLEEP_TIME_MS	500
 
+#define SW0_NODE	DT_ALIAS(magsw)
+#if !DT_NODE_HAS_STATUS(SW0_NODE, okay)
+#error "Unsupported board: sw0 devicetree alias is not defined"
+#endif
+
 /*
  * Get button configuration from the devicetree sw0 alias. This is mandatory.
  */
