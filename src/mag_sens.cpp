@@ -51,10 +51,36 @@ bool mag_sens::readSwitchState() {
 }
 
 /**
+ * @brief Returns last revolution timestamp (ms) and cumulative wheel 
+ *        revolutions.
+ * 
+ * @param wheel_ts Pointer to last wheel revolution timestamp variable.
+ * @param cum_wheel_rev Pointer to total wheel revolution counter variable.
+ */
+void mag_sens::read_wheel_data(uint32_t * wheel_ts, uint32_t * wheel_rev)
+{
+    if (k_mutex_lock(&mag_sens_mutex, K_FOREVER))
+    {
+        *wheel_ts = last_wheel_rev_ts;
+        *wheel_rev = cum_wheel_rev;
+        k_mutex_unlock(&mag_sens_mutex);
+    }
+}
+
+void mag_sens::reset_wheel_data()
+{
+    if (k_mutex_lock(&mag_sens_mutex, K_NO_WAIT))
+    {
+        cum_wheel_rev = 0;
+        k_mutex_unlock(&mag_sens_mutex);
+    }
+}
+
+/**
  * @brief Destructor for the MagSense class.
  */
 mag_sens::~mag_sens() {
-    // Destructor
+    // Destructor TODO
     return;
 }
 
@@ -107,6 +133,11 @@ bool mag_sens::init() {
 
     // Initialize debounce work and return success
     k_work_init_delayable(&switch_debounce_work, debounce_handler_wrapper);
+
+    // Initialize variables and lock mutex
+    k_mutex_init(&mag_sens_mutex);
+    last_wheel_rev_ts = 0;
+    cum_wheel_rev = 0;
     return true;
 }
 
@@ -167,9 +198,14 @@ void mag_sens::switch_int_hndl(const struct device *port,
                                  gpio_port_pins_t pins) {
     // Disable interrupts
     disableSwitchInterrupt();
-
-    // Do something useful
-    printk("Button pressed at %" PRIu32 "\n", k_cycle_get_32());
+    
+    // TODO: critical section
+    // if (k_mutex_lock(&mag_sens_mutex, K_NO_WAIT))
+    // {
+        last_wheel_rev_ts = k_uptime_get_32();
+        cum_wheel_rev = cum_wheel_rev + 1;
+    //     k_mutex_unlock(&mag_sens_mutex);
+    // }
 
     // Schedule debounce work after a timeout
     k_work_schedule(&switch_debounce_work, K_MSEC(DEBOUNCE_TIMEOUT_MS));
