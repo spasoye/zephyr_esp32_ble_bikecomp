@@ -58,7 +58,6 @@ static void connected(struct bt_conn *conn, uint8_t err);
 // Callback when a connection is disconnected
 static void disconnected(struct bt_conn *conn, uint8_t reason);
 /* ------> STATIC DATA <------ */
-
 // Cycling Speed and Cadence Service declaration
 
 // Supported locations array
@@ -189,6 +188,19 @@ void csc_simulation(void)
 	}
 
 	i++;
+}
+
+void csc_send_attr(uint32_t * c_wheel_revs, uint32_t * lwet, uint16_t * c_crank_revs, uint32_t * lcet, bool nfy_wheel, bool nfy_crank)
+{
+	/*
+	 * In typical applications, the CSC Measurement characteristic is
+	 * notified approximately once per second. This interval may vary
+	 * and is determined by the Server and not required to be configurable
+	 * by the Client.
+	 */
+	measurement_nfy(NULL, nfy_wheel ? c_wheel_revs : 0, nfy_wheel ? lwet : 0,
+			nfy_crank ? c_crank_revs : 0, nfy_crank ? lcet : 0);
+
 }
 
 /* ------> PRIVATE FUNCTIONS <------ */

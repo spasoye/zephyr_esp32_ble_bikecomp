@@ -136,6 +136,12 @@ void bas_notify(void);
 // Function to simulate CSC data
 void csc_simulation(void);
 
+/**
+ * @brief Function to send CSC characteristic measurement data.
+ * 
+ */
+void csc_send_attr(uint32_t * c_wheel_revs, uint32_t * lwet, uint16_t * c_crank_revs, uint32_t * lcet, bool nfy_wheel, bool nfy_crank);
+
 #ifdef __cplusplus
 }
 #endif
