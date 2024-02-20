@@ -198,8 +198,7 @@ void csc_send_attr(uint32_t * c_wheel_revs, uint32_t * lwet, uint16_t * c_crank_
 	 * and is determined by the Server and not required to be configurable
 	 * by the Client.
 	 */
-	measurement_nfy(NULL, nfy_wheel ? c_wheel_revs : 0, nfy_wheel ? lwet : 0,
-			nfy_crank ? c_crank_revs : 0, nfy_crank ? lcet : 0);
+	measurement_nfy(NULL, nfy_wheel ? *c_wheel_revs : 0, nfy_wheel ? (uint16_t)	*lwet : 0, nfy_crank ? *c_crank_revs : 0, nfy_crank ? (uint16_t)*lcet : 0);
 
 }
 
