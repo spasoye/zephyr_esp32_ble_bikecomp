@@ -59,6 +59,7 @@ private:
     void enableSwitchInterrupt();
     void disableSwitchInterrupt();
 
+    uint32_t last_irq_time = 0;
     // Private callback function for GPIO interrupt
     void switch_int_hndl(const struct device *port,
                          struct gpio_callback *cb,

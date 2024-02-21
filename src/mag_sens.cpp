@@ -12,7 +12,7 @@
 #include <zephyr/logging/log.h>
 
 /* ------> MACROS <------ */
-#define DEBOUNCE_TIMEOUT_MS 200
+#define DEBOUNCE_TIMEOUT_MS 150
 
 /* ------> DATA TYPES <------ */
 
@@ -59,12 +59,13 @@ bool mag_sens::readSwitchState() {
  */
 void mag_sens::read_wheel_data(uint32_t * wheel_ts, uint32_t * wheel_rev)
 {
-    if (k_mutex_lock(&mag_sens_mutex, K_FOREVER))
-    {
+    
+    // if (k_mutex_lock(&mag_sens_mutex, K_NO_WAIT))
+    // {
         *wheel_ts = last_wheel_rev_ts;
         *wheel_rev = cum_wheel_rev;
         k_mutex_unlock(&mag_sens_mutex);
-    }
+    // }
 }
 
 void mag_sens::reset_wheel_data()
@@ -197,18 +198,25 @@ void mag_sens::switch_int_hndl(const struct device *port,
                                  struct gpio_callback *cb,
                                  gpio_port_pins_t pins) {
     // Disable interrupts
-    disableSwitchInterrupt();
+    // disableSwitchInterrupt();
     
-    // TODO: critical section
-    // if (k_mutex_lock(&mag_sens_mutex, K_NO_WAIT))
-    // {
-        last_wheel_rev_ts = k_uptime_get_32();
-        cum_wheel_rev = cum_wheel_rev + 1;
-    //     k_mutex_unlock(&mag_sens_mutex);
-    // }
+    uint32_t curr_time = k_uptime_get_32();
 
-    // Schedule debounce work after a timeout
-    k_work_schedule(&switch_debounce_work, K_MSEC(DEBOUNCE_TIMEOUT_MS));
+    if ( (curr_time - last_irq_time) > DEBOUNCE_TIMEOUT_MS && (last_irq_time != 0))
+    {
+        // TODO: critical section
+        // if (k_mutex_lock(&mag_sens_mutex, K_NO_WAIT))
+        // {
+            last_wheel_rev_ts = curr_time;
+            cum_wheel_rev = cum_wheel_rev + 1;
+        //     k_mutex_unlock(&mag_sens_mutex);
+        // }
+
+        // Schedule debounce work after a timeout
+        // k_work_schedule(&switch_debounce_work, K_MSEC(DEBOUNCE_TIMEOUT_MS));
+    }
+
+    last_irq_time = curr_time;
 }
 
 /**
