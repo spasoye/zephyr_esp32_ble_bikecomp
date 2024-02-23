@@ -168,8 +168,6 @@ void mag_sens::disableSwitchInterrupt() {
  * @param work Pointer to the k_work structure.
  */
 void mag_sens::debounce_handler(struct k_work *work) {
-    printk("Debounce");
-
     // Enable switch interrupt after debounce timeout
     enableSwitchInterrupt();
 }
@@ -198,25 +196,20 @@ void mag_sens::switch_int_hndl(const struct device *port,
                                  struct gpio_callback *cb,
                                  gpio_port_pins_t pins) {
     // Disable interrupts
-    // disableSwitchInterrupt();
+    disableSwitchInterrupt();
     
     uint32_t curr_time = k_uptime_get_32();
 
     if ( (curr_time - last_irq_time) > DEBOUNCE_TIMEOUT_MS && (last_irq_time != 0))
     {
-        // TODO: critical section
-        // if (k_mutex_lock(&mag_sens_mutex, K_NO_WAIT))
-        // {
+        // critical section
             last_wheel_rev_ts = curr_time;
             cum_wheel_rev = cum_wheel_rev + 1;
-        //     k_mutex_unlock(&mag_sens_mutex);
-        // }
-
-        // Schedule debounce work after a timeout
-        // k_work_schedule(&switch_debounce_work, K_MSEC(DEBOUNCE_TIMEOUT_MS));
     }
 
     last_irq_time = curr_time;
+    // Schedule debounce work after a timeout
+    k_work_schedule(&switch_debounce_work, K_MSEC(DEBOUNCE_TIMEOUT_MS));
 }
 
 /**

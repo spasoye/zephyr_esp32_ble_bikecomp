@@ -45,6 +45,10 @@ public:
     // Perform any cleanup or resource release
     void cleanup();
 
+    void enableSwitchInterrupt();
+    
+    void disableSwitchInterrupt();
+
 private:
     struct k_mutex mag_sens_mutex;
     volatile uint32_t last_wheel_rev_ts;
@@ -55,9 +59,6 @@ private:
 
     // Initialize the magnetic sensor
     bool init();
-
-    void enableSwitchInterrupt();
-    void disableSwitchInterrupt();
 
     uint32_t last_irq_time = 0;
     // Private callback function for GPIO interrupt

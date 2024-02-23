@@ -66,7 +66,9 @@ int main(void)
 		}
 	}
 
+
 	printk("TEST Press the button\n");
+
 	if (led.port) {
 		while (1) {
 			static uint32_t wheel_rev_ts;
@@ -74,12 +76,13 @@ int main(void)
 			// static bool val=true;
 			// val = !val;
 			// gpio_pin_set_dt(&led, val);
-			// k_msleep(SLEEP_TIME_MS);
 			// Sleep for 1 second
 
 			k_sleep(K_SECONDS(1));
 			a.read_wheel_data(&wheel_rev_ts, &cum_wheel_rev);
-
+			printk("Last wheel timestamp: %d\n", wheel_rev_ts);
+			printk("Cummulative wheel revolutions: %d\n\n", cum_wheel_rev);
+			
 			// csc_simulation();
 			csc_send_attr(&cum_wheel_rev, &wheel_rev_ts, NULL, NULL, true, false);
 
