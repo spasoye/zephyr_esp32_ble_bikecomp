@@ -5,6 +5,7 @@
 #include <zephyr/sys/printk.h>
 #include <inttypes.h>
 #include "../inc/mag_sens.h"
+#include "../inc/ble_csc_app.h"
 
 #define SLEEP_TIME_MS	500
 
@@ -27,17 +28,25 @@ static struct gpio_callback button_cb_data;
 static struct gpio_dt_spec led = GPIO_DT_SPEC_GET_OR(DT_ALIAS(led0), gpios,
 						     {0});
 
-void button_pressed(const struct device *dev, struct gpio_callback *cb,
-		    uint32_t pins)
-{
-	// gpio_pin_interrupt_configure_dt(&button, GPIO_INT_DISABLE);
-	printk("Button pressed at %" PRIu32 "\n", k_cycle_get_32());
-}
-
 int main(void)
 {
 	int ret;
+
+	// Enable Bluetooth
+	ret = bt_enable(NULL);
+
+	if (ret) {
+		printk("Bluetooth init failed (err %d)\n", ret);
+		return 0;
+	}
+	else
+	{
+		printk("Bluetooth initialized\n");
+	}
 	
+	// Callback when Bluetooth is ready
+	bt_ready();
+
 	// Magnetic switch testing
 	mag_sens a(&button);
 
@@ -57,15 +66,28 @@ int main(void)
 		}
 	}
 
+
 	printk("TEST Press the button\n");
 
 	if (led.port) {
 		while (1) {
-			static bool val=true;
-			val = !val;
-			gpio_pin_set_dt(&led, val);
-			k_msleep(SLEEP_TIME_MS);
+			static uint32_t wheel_rev_ts;
+			static uint32_t cum_wheel_rev;
+			// static bool val=true;
+			// val = !val;
+			// gpio_pin_set_dt(&led, val);
+			// Sleep for 1 second
+
+			k_sleep(K_SECONDS(1));
+			a.read_wheel_data(&wheel_rev_ts, &cum_wheel_rev);
+			printk("Last wheel timestamp: %d\n", wheel_rev_ts);
+			printk("Cummulative wheel revolutions: %d\n\n", cum_wheel_rev);
+			
+			// csc_simulation();
+			csc_send_attr(&cum_wheel_rev, &wheel_rev_ts, NULL, NULL, true, false);
+
+			// Simulate battery level notification
+			bas_notify();
 		}
 	}
-	return 0;
 }
