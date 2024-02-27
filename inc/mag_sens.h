@@ -38,7 +38,9 @@ public:
     // Read the state of the switch (true for ON, false for OFF)
     bool readSwitchState();
 
-    void read_wheel_data(uint32_t * wheel_ts, uint32_t * wheel_rev);
+    void sens_start();
+
+    bool read_wheel_data(uint32_t * wheel_ts, uint32_t * wheel_rev);
 
     void reset_wheel_data();
 
@@ -50,10 +52,6 @@ public:
     void disableSwitchInterrupt();
 
 private:
-    struct k_mutex mag_sens_mutex;
-    volatile uint32_t last_wheel_rev_ts;
-    volatile uint32_t cum_wheel_rev;
-
     const struct gpio_dt_spec *mag_sw;
     struct gpio_callback switch_cb_data;
 
@@ -74,6 +72,19 @@ private:
     struct k_work_delayable switch_debounce_work;
     void debounce_handler(struct k_work *work);
     static void debounce_handler_wrapper(struct k_work *work);
+
+    // Wheel data handler thread
+    k_tid_t mag_sens_thread_id;
+	struct k_thread mag_sens_thread_data;
+    // ISR to thread signal
+    struct k_sem mag_sens_sem;
+
+    // Critical section from mag sens thread
+    struct k_mutex mag_sens_mutex;
+    volatile uint32_t last_wheel_rev_ts;
+    volatile uint32_t cum_wheel_rev;
+    void event_hndl_thread();
+    static void static_event_hndl_thread(void *, void *, void *);
 };
 
 

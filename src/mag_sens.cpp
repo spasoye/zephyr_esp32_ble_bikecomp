@@ -12,7 +12,13 @@
 #include <zephyr/logging/log.h>
 
 /* ------> MACROS <------ */
+LOG_MODULE_REGISTER(mag_sens);
+
 #define DEBOUNCE_TIMEOUT_MS 150
+#define STACK_SIZE 2048
+#define THREAD_PRIORITY 5
+
+K_THREAD_STACK_DEFINE(threadStack, STACK_SIZE);
 
 /* ------> DATA TYPES <------ */
 
@@ -34,11 +40,24 @@ mag_sens::mag_sens(const struct gpio_dt_spec *input) {
 
     // Initialize magnetic sensor
     if (!init()) {
-        printk("Failed to initialize magnetic sensor\n");
+        LOG_INF("Failed to initialize magnetic sensor\n");
         // Handle initialization failure if needed
     }
+
+    mag_sens_thread_id = k_thread_create(&mag_sens_thread_data, 
+		threadStack,
+		K_THREAD_STACK_SIZEOF(threadStack),
+		mag_sens::static_event_hndl_thread,
+		this, NULL, NULL,
+		THREAD_PRIORITY, 0, K_FOREVER);
+
+    k_sem_init(&mag_sens_sem,0, 1);
 }
 
+void mag_sens::sens_start()
+{
+    k_thread_start(mag_sens_thread_id);
+}
 /**
  * @brief Read the state of the switch.
  *
@@ -57,15 +76,19 @@ bool mag_sens::readSwitchState() {
  * @param wheel_ts Pointer to last wheel revolution timestamp variable.
  * @param cum_wheel_rev Pointer to total wheel revolution counter variable.
  */
-void mag_sens::read_wheel_data(uint32_t * wheel_ts, uint32_t * wheel_rev)
+bool mag_sens::read_wheel_data(uint32_t * wheel_ts, uint32_t * wheel_rev)
 {
-    
-    // if (k_mutex_lock(&mag_sens_mutex, K_NO_WAIT))
-    // {
+    bool ret=false;
+
+    if (k_mutex_lock(&mag_sens_mutex, K_NO_WAIT) == 0)
+    {
         *wheel_ts = last_wheel_rev_ts;
         *wheel_rev = cum_wheel_rev;
         k_mutex_unlock(&mag_sens_mutex);
-    // }
+        ret = true;
+    }
+
+    return ret;
 }
 
 void mag_sens::reset_wheel_data()
@@ -92,7 +115,7 @@ mag_sens::~mag_sens() {
  */
 void mag_sens::cleanup() {
     // Perform any cleanup or resource release
-    printk("Cleaning up magnetic sensor\n");
+    LOG_INF("Cleaning up magnetic sensor\n");
     // Add cleanup logic if needed
 }
 
@@ -106,7 +129,7 @@ bool mag_sens::init() {
 
     // Check if GPIO device is ready
     if (!gpio_is_ready_dt(mag_sw)) {
-        printk("Error: button device %s is not ready\n",
+        LOG_INF("Error: button device %s is not ready\n",
                mag_sw->port->name);
         return false;
     }
@@ -114,7 +137,7 @@ bool mag_sens::init() {
     // Configure GPIO pin as input
     ret = gpio_pin_configure_dt(mag_sw, GPIO_INPUT);
     if (ret != 0) {
-        printk("Error %d: failed to configure %s pin %d\n",
+        LOG_INF("Error %d: failed to configure %s pin %d\n",
                ret, mag_sw->port->name, mag_sw->pin);
         return false;
     }
@@ -123,7 +146,7 @@ bool mag_sens::init() {
     ret = gpio_pin_interrupt_configure_dt(mag_sw,
                                           GPIO_INT_EDGE_TO_INACTIVE);
     if (ret != 0) {
-        printk("Error %d: failed to configure interrupts on %s pin %d\n",
+        LOG_INF("Error %d: failed to configure interrupts on %s pin %d\n",
             ret, mag_sw->port->name, mag_sw->pin);
         return false;
     }
@@ -143,10 +166,55 @@ bool mag_sens::init() {
 }
 
 /**
+ * @brief Wrapper for switch_int_hndl to use non-static member function.
+ *
+ * @param port Pointer to the GPIO device structure.
+ * @param cb Pointer to the GPIO callback structure.
+ * @param pins GPIO port pins.
+ */
+void mag_sens::switch_int_hndl_wrapper(const struct device *port,
+                                        struct gpio_callback *cb,
+                                        gpio_port_pins_t pins) {
+    // Get the instance from the callback data
+    mag_sens *instance = CONTAINER_OF(cb, mag_sens, switch_cb_data);
+
+    // Call the non-static member function
+    instance->switch_int_hndl(port, cb, pins);
+}
+
+void mag_sens::event_hndl_thread()
+{
+    while (true)
+    {
+        k_sem_take(&mag_sens_sem, K_FOREVER);
+        
+        /* Lock the mutex before updating shared variables */
+        k_mutex_lock(&mag_sens_mutex, K_FOREVER);
+
+        /* Update shared variables */
+        last_wheel_rev_ts = k_uptime_get_32();
+        cum_wheel_rev++;
+
+        LOG_INF("Event LWT: %d\n", last_wheel_rev_ts);
+        LOG_INF("Event CWR: %d\n\n", cum_wheel_rev);
+
+        /* Unlock the mutex */
+        k_mutex_unlock(&mag_sens_mutex);
+    }
+    
+}
+
+void mag_sens::static_event_hndl_thread(void *object, void *, void *)
+{
+    auto threadObject = reinterpret_cast<mag_sens*>(object);
+	threadObject->event_hndl_thread();
+}
+
+/**
  * @brief Enable switch interrupt.
  */
 void mag_sens::enableSwitchInterrupt() {
-    printk("Mag switch int enable\n");
+    LOG_INF("Mag switch int enable\n");
     gpio_pin_interrupt_configure_dt(mag_sw,
                                     GPIO_INT_EDGE_TO_INACTIVE);
 }
@@ -155,7 +223,7 @@ void mag_sens::enableSwitchInterrupt() {
  * @brief Disable switch interrupt.
  */
 void mag_sens::disableSwitchInterrupt() {
-    printk("Mag switch int disable\n");
+    LOG_INF("Mag switch int disable\n");
     gpio_pin_interrupt_configure_dt(mag_sw,
                                     GPIO_INT_DISABLE);
 }
@@ -203,28 +271,10 @@ void mag_sens::switch_int_hndl(const struct device *port,
     if ( (curr_time - last_irq_time) > DEBOUNCE_TIMEOUT_MS && (last_irq_time != 0))
     {
         // critical section
-            last_wheel_rev_ts = curr_time;
-            cum_wheel_rev = cum_wheel_rev + 1;
+        k_sem_give(&mag_sens_sem);
     }
 
     last_irq_time = curr_time;
     // Schedule debounce work after a timeout
     k_work_schedule(&switch_debounce_work, K_MSEC(DEBOUNCE_TIMEOUT_MS));
-}
-
-/**
- * @brief Wrapper for switch_int_hndl to use non-static member function.
- *
- * @param port Pointer to the GPIO device structure.
- * @param cb Pointer to the GPIO callback structure.
- * @param pins GPIO port pins.
- */
-void mag_sens::switch_int_hndl_wrapper(const struct device *port,
-                                        struct gpio_callback *cb,
-                                        gpio_port_pins_t pins) {
-    // Get the instance from the callback data
-    mag_sens *instance = CONTAINER_OF(cb, mag_sens, switch_cb_data);
-
-    // Call the non-static member function
-    instance->switch_int_hndl(port, cb, pins);
 }
