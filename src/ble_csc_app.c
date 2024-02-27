@@ -9,8 +9,10 @@
 * 
 */
 #include "../inc/ble_csc_app.h"
+#include <zephyr/logging/log.h>
 
 /* ------> MACROS <------ */
+LOG_MODULE_REGISTER(ble_csc_app);
 
 /* ------> DATA TYPES <------ */
 
@@ -43,10 +45,6 @@ static ssize_t write_ctrl_point(struct bt_conn *conn,
 				const struct bt_gatt_attr *attr,
 				const void *buf, uint16_t len, uint16_t offset,
 				uint8_t flags);
-
-// Function to send indication for SC Control Point
-static void ctrl_point_ind(struct bt_conn *conn, uint8_t req_op, uint8_t status,
-			   const void *data, uint16_t data_len);
 
 // Function to send CSC Measurement notification
 static void measurement_nfy(struct bt_conn *conn, uint32_t cwr, uint16_t lwet,
@@ -123,15 +121,15 @@ void bt_ready(void)
 {
 	int err;
 
-	printk("Bluetooth initialized\n");
+	LOG_INF("Bluetooth initialized\n");
 
 	err = bt_le_adv_start(BT_LE_ADV_CONN_NAME, ad, ARRAY_SIZE(ad), NULL, 0);
 	if (err) {
-		printk("Advertising failed to start (err %d)\n", err);
+		LOG_INF("Advertising failed to start (err %d)\n", err);
 		return;
 	}
 
-	printk("Advertising successfully started\n");
+	LOG_INF("Advertising successfully started\n");
 }
 
 // Battery level notification
@@ -383,16 +381,16 @@ static void measurement_nfy(struct bt_conn *conn, uint32_t cwr, uint16_t lwet,
 static void connected(struct bt_conn *conn, uint8_t err)
 {
 	if (err) {
-		printk("Connection failed (err 0x%02x)\n", err);
+		LOG_INF("Connection failed (err 0x%02x)\n", err);
 	} else {
-		printk("Connected\n");
+		LOG_INF("Connected\n");
 	}
 }
 
 // Callback when a connection is disconnected
 static void disconnected(struct bt_conn *conn, uint8_t reason)
 {
-	printk("Disconnected (reason 0x%02x)\n", reason);
+	LOG_INF("Disconnected (reason 0x%02x)\n", reason);
 }
 
 /* ------> INTERRUPT HANDLERS <------ */
